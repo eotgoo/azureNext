@@ -63,8 +63,8 @@ export default function Home({ movies }: IMovies) {
           </h1>
           <div className="grid grid-cols-4 gap-4 p-4">
             {movies.length > 0 &&
-              movies.map((movie: IMovie) => (
-                <Card sx={{ maxWidth: 250, height: 500 }}>
+              movies.map((movie: IMovie, index) => (
+                <Card sx={{ maxWidth: 250, height: 500 }} key={index}>
                   <CardActionArea>
                     <CardMedia
                       component="img"
