@@ -1,10 +1,7 @@
 import Head from "next/head";
+import Image from "next/image";
+import Link from "next/link";
 import { Inter } from "next/font/google";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
-import CardMedia from "@mui/material/CardMedia";
-import Typography from "@mui/material/Typography";
-import { CardActionArea } from "@mui/material";
 const inter = Inter({ subsets: ["latin"] });
 
 interface IAwards {
@@ -56,29 +53,46 @@ export default function Home({ movies }: IMovies) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div className="bg-blue-900 min-h-screen">
+      <div className="bg-black min-h-screen">
         <div className="container mx-auto">
-          <h1 className="font-bold text-white text-center text-5xl mb-10 ">
+          <h1 className="font-bold text-white underline mb-10 text-5xl text-center">
             Movies List
           </h1>
-          <div className="grid grid-cols-4 gap-4 p-4">
+          <div className="bg-black grid grid-cols-2 gap-2 p-4">
             {movies.length > 0 &&
-              movies.map((movie: IMovie, index) => (
-                <Card sx={{ maxWidth: 250, height: 500 }} key={index}>
-                  <CardActionArea>
-                    <CardMedia
-                      component="img"
-                      height="140"
-                      image={movie.poster}
-                      alt=""
-                    />
-                    <CardContent>
-                      <Typography gutterBottom variant="h5" component="div">
-                        {movie.title}
-                      </Typography>
-                    </CardContent>
-                  </CardActionArea>
-                </Card>
+              movies.map((movie: IMovie) => (
+                <div className="py-3 sm:max-w-xl sm:mx-auto">
+                  <div className="bg-white shadow-lg border-gray-100 max-h-80	 border sm:rounded-3xl p-8 flex space-x-8">
+                    <div className="h-48 overflow-visible w-1/2">
+                      <Image
+                        src={movie.poster || ""}
+                        width={150}
+                        height={150}
+                        alt="moviePoster"
+                        className="rounded-xl shadow-lg"
+                      />
+                    </div>
+                    <div className="flex flex-col w-1/2 space-y-4">
+                      <div className="flex justify-between items-start">
+                        <h2 className="text-3xl font-bold">{movie.title}</h2>
+                        <div className="bg-yellow-400 font-bold rounded-xl p-2">
+                          {movie.imdb.rating}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-sm text-gray-400">
+                          {movie.type}
+                        </div>
+                        <div className="text-lg text-gray-800">
+                          {movie.year}
+                        </div>
+                      </div>
+                      <p className=" text-gray-400 max-h-40 overflow-y-hidden">
+                        {movie.plot}
+                      </p>
+                    </div>
+                  </div>
+                </div>
               ))}
           </div>
         </div>
