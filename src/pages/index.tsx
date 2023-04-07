@@ -1,6 +1,10 @@
+import Pagination from "../Components/pagination";
+import usePosts from "../hooks/UsePosts";
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/router";
+import { useState } from "react";
 import { Inter } from "next/font/google";
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,9 +29,9 @@ interface IMovie {
   writers: [String];
   awards: IAwards;
   lastupdated: String;
-  year: Number;
+  year: number;
   imdb: {
-    rating: Number;
+    rating: number;
     votes: Number;
     id: Number;
   };
@@ -43,8 +47,33 @@ interface IMovie {
 
 interface IMovies {
   movies: IMovie[];
+  pagination: any;
 }
-export default function Home({ movies }: IMovies) {
+export default function Home({ movies, pagination }: IMovies) {
+  const [movieList, setMovieList] = useState(movies);
+  const router = useRouter();
+  const pages = [1, 2, 3, 4, 5, 6, 7, 8];
+  const [cur, setCur] = useState<number>(1);
+
+  console.log("PAGE", pagination);
+
+  const handlePagination = (action: string) => {
+    if (action === "next") {
+      router.replace(`?limit=6&page=${pagination.page + 1}`);
+    } else {
+      router.replace(`?limit=6&page=${pagination.page - 1}`);
+    }
+  };
+
+  const SearchClick = (e: any) => {
+    const change = movies.filter((movie) =>
+      movie.title.toLowerCase().includes(e.target.value)
+    );
+
+    console.log(change, "===");
+    setMovieList(change);
+  };
+
   return (
     <>
       <Head>
@@ -58,18 +87,25 @@ export default function Home({ movies }: IMovies) {
           <h1 className="font-bold text-white underline mb-10 text-5xl text-center">
             Movies List
           </h1>
+          <div>
+            <input
+              className="border-slate-200 placeholder-slate-400"
+              placeholder="search"
+              onChange={SearchClick}
+            />
+          </div>
           <div className="bg-black grid grid-cols-2 gap-2 p-4">
             {movies.length > 0 &&
-              movies.map((movie: IMovie) => (
-                <div className="py-3 sm:max-w-xl sm:mx-auto">
+              movieList.map((movie: IMovie) => (
+                <div className="py-3 sm:max-w-xl sm:mx-auto" key={movie._id}>
                   <div className="bg-white shadow-lg border-gray-100 max-h-80	 border sm:rounded-3xl p-8 flex space-x-8">
                     <div className="h-48 overflow-visible w-1/2">
                       <Image
                         src={movie.poster || ""}
                         width={150}
-                        height={150}
+                        height={200}
                         alt="moviePoster"
-                        className="rounded-xl shadow-lg"
+                        className="rounded-xl shadow-lg h-full w-full"
                       />
                     </div>
                     <div className="flex flex-col w-1/2 space-y-4">
@@ -95,17 +131,30 @@ export default function Home({ movies }: IMovies) {
                 </div>
               ))}
           </div>
+          <Pagination
+            pages={pages}
+            cur={pagination.page}
+            nextPage={() => {
+              handlePagination("next");
+            }}
+            prevPage={() => {
+              handlePagination("prev");
+            }}
+          />
         </div>
       </div>
     </>
   );
 }
 
-export async function getServerSideProps() {
-  const res = await fetch("http://localhost:8000/movies");
+export async function getServerSideProps(ctx: any) {
+  const { page, limit } = ctx.query;
+  const res = await fetch(
+    `http://localhost:8000/movies?limit=${limit || 6}&page=${page || 1}`
+  );
   const data = await res.json();
 
   return {
-    props: { movies: data.movies },
+    props: { movies: data.movies, pagination: data.pagination },
   };
 }
